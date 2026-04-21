@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ubuntu-zdt
+  labels:
+    app: ubuntu-zdt
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ubuntu-zdt
+  template:
+    metadata:
+      labels:
+        app: ubuntu-zdt
+    spec:
+      containers:
+      - name: ubuntu-zdt
+        image: ubuntu
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/sh","-c","sleep 10"]
+          preStop:
+            exec:
+              command: ["/bin/sh","-c","sleep 10"]
+        command:
+          - "sleep"
+          - "604800"
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            memory: "100Mi"
+            cpu: "50m"
+      restartPolicy: Always
