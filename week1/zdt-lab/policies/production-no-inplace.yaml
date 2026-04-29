@@ -2,7 +2,7 @@ apiVersion: analysis.scaleops.sh/v1alpha1
 kind: Policy
 metadata:
   name: production-no-inplace
-  namespace: scaleops-system
+  namespace: scaleops
 spec:
   type: Optimize
   policyOptimize:
