@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: disk-write-cycle
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: disk-write-cycle
+  template:
+    metadata:
+      labels:
+        app: disk-write-cycle
+    spec:
+      terminationGracePeriodSeconds: 0
+      volumes:
+        - name: scratch
+          emptyDir: {}
+      containers:
+        - name: writer
+          image: busybox
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -eu
+              while true; do
+                echo "Writing 10 x 50MiB files at $(date)"
+                i=1
+                while [ "$i" -le 10 ]; do
+                  dd if=/dev/zero of=/data/blob-$i bs=1M count=50 conv=fsync
+                  i=$((i+1))
+                done
+                du -sh /data || true
+                sleep 3600
+                rm -f /data/blob-*
+                sync
+                du -sh /data || true
+                sleep 3600
+              done
+          volumeMounts:
+            - name: scratch
+              mountPath: /data
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "64Mi"
+            limits:
+              cpu: "500m"
+              memory: "128Mi"
