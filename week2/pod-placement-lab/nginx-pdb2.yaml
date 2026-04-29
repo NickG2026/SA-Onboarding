@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-pdb2
+  labels:
+    app: nginx-pdb2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-pdb2
+  template:
+    metadata:
+      labels:
+        app: nginx-pdb2
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:stable
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 250m
+            memory: 256Mi
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: nginx-pdb2
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: nginx-pdb2
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-pdb2
+  labels:
+    app: nginx-pdb2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-pdb2
+  template:
+    metadata:
+      labels:
+        app: nginx-pdb2
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:stable
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 250m
+            memory: 256Mi
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: nginx-pdb2
+spec:
+  maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: nginx-pdb2
