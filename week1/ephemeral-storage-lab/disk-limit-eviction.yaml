@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: disk-limit-eviction
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: disk-limit-eviction
+  template:
+    metadata:
+      labels:
+        app: disk-limit-eviction
+    spec:
+      terminationGracePeriodSeconds: 0
+      volumes:
+        - name: scratch
+          emptyDir: {}
+      containers:
+        - name: writer
+          image: busybox
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -e
+              i=0
+              while true; do
+                i=$((i+1))
+                dd if=/dev/zero of=/data/blob-$i bs=20M count=10 conv=fsync
+                du -sh /data || true
+                sleep 0.1
+              done
+          volumeMounts:
+            - name: scratch
+              mountPath: /data
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "64Mi"
+              ephemeral-storage: "100Mi"
+            limits:
+              cpu: "250m"
+              memory: "128Mi"
+              ephemeral-storage: "300Mi"
