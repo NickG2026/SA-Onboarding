@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: local-storage-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: local-storage
+  template:
+    metadata:
+      labels:
+        app: local-storage
+    spec:
+      containers:
+        - name: busybox
+          image: busybox
+          command: ["sleep", "3600"]
+          volumeMounts:
+            - name: local-volume
+              mountPath: /data
+      volumes:
+        - name: local-volume
+          hostPath:
+            path: /data/local-storage
+            type: Directory
